@@ -1,0 +1,26 @@
+{
+  "name": "plan-poker-backend",
+  "version": "1.0.0",
+  "description": "Backend para a aplicação de Planning Poker",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:reset": "cross-env RESET_DB=true node src/index.js",
+    "start:clear": "cross-env CLEAR_DB_TABLES=true node src/index.js",
+    "dev": "nodemon src/index.js",
+    "dev:reset": "cross-env RESET_DB=true nodemon src/index.js",
+    "dev:clear": "cross-env CLEAR_DB_TABLES=true nodemon src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.0.1"
+  }
+}
