@@ -33,7 +33,7 @@ socketHandlers(io);
 
 // Rota de teste
 app.get('/', (req, res) => {
-  res.send('Planning Poker API está funcionando!');
+  res.send('Planning Poko API está funcionando!');
 });
 
 const PORT = process.env.PORT || 3000;

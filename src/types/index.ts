@@ -1,4 +1,4 @@
-// Tipos para o Planning Poker
+// Tipos para o Planning Poko
 
 export type UserRole = 'host' | 'player';
 

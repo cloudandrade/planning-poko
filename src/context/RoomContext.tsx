@@ -15,19 +15,19 @@ interface RoomProviderProps {
 // Função para salvar os dados no localStorage
 const saveToLocalStorage = (user: User | null, room: Room | null) => {
   if (user && room) {
-    localStorage.setItem('planningPoker_user', JSON.stringify(user));
-    localStorage.setItem('planningPoker_room', JSON.stringify(room));
+    localStorage.setItem('planningPoko_user', JSON.stringify(user));
+    localStorage.setItem('planningPoko_room', JSON.stringify(room));
   } else {
-    localStorage.removeItem('planningPoker_user');
-    localStorage.removeItem('planningPoker_room');
+    localStorage.removeItem('planningPoko_user');
+    localStorage.removeItem('planningPoko_room');
   }
 };
 
 // Função para carregar os dados do localStorage
 const loadFromLocalStorage = () => {
   try {
-    const userStr = localStorage.getItem('planningPoker_user');
-    const roomStr = localStorage.getItem('planningPoker_room');
+    const userStr = localStorage.getItem('planningPoko_user');
+    const roomStr = localStorage.getItem('planningPoko_room');
     
     if (userStr && roomStr) {
       return {
@@ -38,8 +38,8 @@ const loadFromLocalStorage = () => {
   } catch (error) {
     console.error('Erro ao carregar dados do localStorage:', error);
     // Limpar localStorage em caso de erro
-    localStorage.removeItem('planningPoker_user');
-    localStorage.removeItem('planningPoker_room');
+    localStorage.removeItem('planningPoko_user');
+    localStorage.removeItem('planningPoko_room');
   }
   
   return { user: null, room: null };
@@ -104,7 +104,17 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       
       if (currentRoom && room.id === currentRoom.id) {
         console.log('Sala atualizada:', room);
-        setCurrentRoom(room);
+        
+        // Preservar o estado activeVoting quando receber atualizações da sala
+        // Isso evita que novos usuários afetem o estado da votação ativa
+        setCurrentRoom(prevRoom => {
+          if (!prevRoom) return room;
+          
+          return {
+            ...room,
+            activeVoting: prevRoom.activeVoting
+          };
+        });
       }
     });
     
@@ -125,7 +135,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
             if (!prevRoom) return null;
             return {
               ...prevRoom,
-              users: [...prevRoom.users, user]
+              users: [...prevRoom.users, user],
+              // Preservar o estado de votação ativa quando um novo usuário entra
+              activeVoting: prevRoom.activeVoting
             };
           });
         }
@@ -145,7 +157,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
           if (!prevRoom) return null;
           return {
             ...prevRoom,
-            users: prevRoom.users.filter(u => u.id !== userId)
+            users: prevRoom.users.filter(u => u.id !== userId),
+            // Preservar o estado de votação ativa quando um usuário sai
+            activeVoting: prevRoom.activeVoting
           };
         });
       }
@@ -255,8 +269,8 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     });
     
     // Limpar dados do localStorage
-    localStorage.removeItem('planningPoker_user');
-    localStorage.removeItem('planningPoker_room');
+    localStorage.removeItem('planningPoko_user');
+    localStorage.removeItem('planningPoko_room');
     
     setCurrentRoom(null);
     setCurrentUser(null);

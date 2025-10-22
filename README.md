@@ -1,11 +1,11 @@
-# Planning Poker
+# Planning Poko
 
-Uma aplicação de Planning Poker para estimação ágil de histórias de usuário, desenvolvida com React, TypeScript, Bootstrap e Node.js.
+Uma aplicação de Planning Poko para estimação ágil de histórias de usuário, desenvolvida com React, TypeScript, Bootstrap e Node.js.
 
 ## Estrutura do Projeto
 
 ```
-plan-poker/
+plan-poko/
 ├── backend/           # Servidor Node.js com Express e Socket.IO
 │   ├── src/
 │   │   ├── controllers/  # Controladores da API
@@ -32,7 +32,7 @@ plan-poker/
 
 - Criação de salas com código de 4 letras
 - Entrada em salas existentes usando o código
-- Votação em histórias usando cards de Planning Poker
+- Votação em histórias usando cards de Planning Poko
 - Revelação simultânea de votos
 - Histórico de rodadas
 - Comunicação em tempo real entre usuários

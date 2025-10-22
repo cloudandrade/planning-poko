@@ -38,7 +38,7 @@ const Home: React.FC = () => {
     <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--dark)' }}>
       <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
         <div className="w-100" style={{ maxWidth: '500px', backgroundColor: 'var(--dark-light)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', padding: '1.5rem' }}>
-          <h1 className="display-5 fw-bold text-center mb-4">Planning Poker</h1>
+          <h1 className="display-5 fw-bold text-center mb-4">Planning Poko</h1>
           
           <div className="d-flex mb-4">
             <button

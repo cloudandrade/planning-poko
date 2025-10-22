@@ -30,8 +30,9 @@ const Card: React.FC<CardProps> = ({ value, selected = false, revealed = true, d
         transition: 'all 0.2s',
         backgroundColor,
         borderColor: selected ? 'var(--primary-light)' : 'var(--dark-lighter)',
+        borderWidth: selected ? '2px' : '1px',
         color: 'white',
-        boxShadow: selected ? '0 4px 6px -1px rgba(139, 92, 246, 0.3)' : 'none',
+        boxShadow: selected ? '0 0 10px 2px rgba(139, 92, 246, 0.6), inset 0 0 5px rgba(139, 92, 246, 0.3)' : 'none',
         opacity: disabled ? 0.6 : 1
       }}
     >

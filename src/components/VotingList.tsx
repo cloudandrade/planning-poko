@@ -15,7 +15,7 @@ const VotingList: React.FC<VotingListProps> = ({ rounds, onPlay, onDelete, isHos
   if (votings.length === 0) {
     return (
       <div className="text-center p-4 rounded" style={{ backgroundColor: 'var(--dark-light)' }}>
-        <p className="mb-0">Nenhuma votação criada ainda.</p>
+        <p className="mb-0" style={{ color: 'white' }}>Nenhuma votação criada ainda.</p>
       </div>
     );
   }
@@ -23,14 +23,23 @@ const VotingList: React.FC<VotingListProps> = ({ rounds, onPlay, onDelete, isHos
   return (
     <div className="list-group">
       {votings.map((round) => (
-        <div 
+        <button 
           key={round.id} 
-          className="list-group-item d-flex justify-content-between align-items-center"
-          style={{ backgroundColor: 'var(--dark-light)', borderColor: 'var(--dark-lighter)' }}
+          className="list-group-item d-flex justify-content-between align-items-center w-100 text-start border"
+          style={{ 
+            backgroundColor: 'var(--dark-light)', 
+            borderColor: 'var(--dark-lighter)',
+            transition: 'all 0.2s ease',
+            cursor: isHost ? 'pointer' : 'default'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--dark-lighter)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--dark-light)'}
+          onClick={() => isHost && onPlay(round.id)}
+          disabled={!isHost}
         >
           <div>
-            <h5 className="mb-1">{round.title}</h5>
-            {round.subtitle && <p className="mb-0 text-secondary small">{round.subtitle}</p>}
+            <h5 className="mb-1" style={{ color: 'white', fontWeight: 'bold' }}>{round.title}</h5>
+            {round.subtitle && <p className="mb-0 small" style={{ color: '#d1d1d1' }}>{round.subtitle}</p>}
             {round.finalEstimate && (
               <span className="badge bg-success ms-2">Estimativa: {round.finalEstimate}</span>
             )}
@@ -52,7 +61,7 @@ const VotingList: React.FC<VotingListProps> = ({ rounds, onPlay, onDelete, isHos
               </button>
             </div>
           )}
-        </div>
+        </button>
       ))}
     </div>
   );

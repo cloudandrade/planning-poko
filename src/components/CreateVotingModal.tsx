@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from './Button';
+import './styles/modal.css';
 
 interface CreateVotingModalProps {
   isOpen: boolean;
@@ -64,7 +65,7 @@ const CreateVotingModal: React.FC<CreateVotingModalProps> = ({ isOpen, onClose, 
               placeholder="Digite o título da votação"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              style={{ backgroundColor: 'var(--dark-light)', borderColor: 'var(--dark-lighter)' }}
+              style={{ backgroundColor: 'var(--dark-light)', borderColor: 'var(--dark-lighter)', color: 'white' }}
               required
             />
           </div>
@@ -79,7 +80,7 @@ const CreateVotingModal: React.FC<CreateVotingModalProps> = ({ isOpen, onClose, 
               placeholder="Digite uma descrição para a votação"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              style={{ backgroundColor: 'var(--dark-light)', borderColor: 'var(--dark-lighter)' }}
+              style={{ backgroundColor: 'var(--dark-light)', borderColor: 'var(--dark-lighter)', color: 'white' }}
               rows={3}
             />
           </div>

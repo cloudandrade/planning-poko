@@ -1,6 +1,6 @@
-# Planning Poker Backend
+# Planning Poko Backend
 
-Backend para a aplicação de Planning Poker, desenvolvido com Node.js, Express, Socket.io e SQLite.
+Backend para a aplicação de Planning Poko, desenvolvido com Node.js, Express, Socket.io e SQLite.
 
 ## Estrutura do Projeto
 
