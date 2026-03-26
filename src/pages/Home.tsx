@@ -1,9 +1,20 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useRoom } from '../hooks/useRoom';
 
+/** Extrai código da sala de ?code= na URL (link compartilhável). */
+function readRoomCodeFromSearch(): string | null {
+  if (typeof window === 'undefined') return null;
+  const raw = new URLSearchParams(window.location.search).get('code');
+  if (!raw) return null;
+  const letters = raw.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 4);
+  return letters.length > 0 ? letters : null;
+}
+
 const Home: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { createRoom, joinRoom, error, currentRoom } = useRoom();
   
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
@@ -12,13 +23,21 @@ const Home: React.FC = () => {
   const [userName, setUserName] = useState('');
   
   const [shouldNavigate, setShouldNavigate] = useState(false);
+
+  useEffect(() => {
+    const fromUrl = readRoomCodeFromSearch();
+    if (fromUrl) {
+      setActiveTab('join');
+      setRoomId(fromUrl);
+    }
+  }, []);
   
   useEffect(() => {
     if (shouldNavigate && currentRoom) {
-      navigate('/room');
+      router.push('/room');
       setShouldNavigate(false);
     }
-  }, [shouldNavigate, currentRoom, navigate]);
+  }, [shouldNavigate, currentRoom, router]);
   
   const handleCreateRoom = () => {
     if (!roomName.trim() || !userName.trim()) return;

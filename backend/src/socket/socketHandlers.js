@@ -1,4 +1,4 @@
-const roomModel = require('../models/roomModel');
+const roomModel = require('../models/roomModelMongo');
 
 // Armazenamento global de salas e usuários
 const activeRooms = new Map(); // roomId -> Room
@@ -270,6 +270,35 @@ function socketHandlers(io) {
         socket.emit('error', { message: 'Erro ao esconder cards' });
       }
     });
+
+    // Zerar votos da rodada atual (reiniciar votação na mesma tarefa)
+    socket.on('reset-round-votes', async ({ roomId, roundId, roomCode }) => {
+      try {
+        console.log(`Tentando zerar votos: ID=${roomId}, Código=${roomCode}, Round=${roundId}`);
+
+        if (roomCode) {
+          const existingRoomId = roomsByCode.get(roomCode);
+          if (existingRoomId && existingRoomId !== roomId) {
+            roomId = existingRoomId;
+          }
+        }
+
+        const room = await roomModel.resetRoundVotes(roomId, roundId);
+        activeRooms.set(roomId, room);
+
+        if (roomCode) {
+          io.to(roomCode).emit('room-updated', room);
+          io.to(roomCode).emit('votes-reset', { roomId, roundId });
+        }
+        io.to(roomId).emit('room-updated', room);
+        io.to(roomId).emit('votes-reset', { roomId, roundId });
+
+        console.log(`Votos zerados na sala ${roomId}, rodada ${roundId}`);
+      } catch (error) {
+        console.error('Erro ao zerar votos:', error);
+        socket.emit('error', { message: 'Erro ao reiniciar votação' });
+      }
+    });
     
     // Iniciar nova rodada
     socket.on('start-new-round', async ({ roomId, title, subtitle, roomCode }) => {
@@ -352,6 +381,31 @@ function socketHandlers(io) {
       } catch (error) {
         console.error('Erro ao definir estimativa final:', error);
         socket.emit('error', { message: 'Erro ao definir estimativa final' });
+      }
+    });
+
+    // Atualizar título/descrição de uma rodada (tarefa)
+    socket.on('update-round', async ({ roomId, roundId, title, subtitle, roomCode }) => {
+      try {
+        if (roomCode) {
+          const existingRoomId = roomsByCode.get(roomCode);
+          if (existingRoomId && existingRoomId !== roomId) {
+            roomId = existingRoomId;
+          }
+        }
+
+        const room = await roomModel.updateRound(roomId, roundId, title, subtitle ?? '');
+        activeRooms.set(roomId, room);
+
+        if (roomCode) {
+          io.to(roomCode).emit('room-updated', room);
+        }
+        io.to(roomId).emit('room-updated', room);
+
+        console.log(`Rodada ${roundId} atualizada na sala ${roomId}`);
+      } catch (error) {
+        console.error('Erro ao atualizar rodada:', error);
+        socket.emit('error', { message: 'Erro ao atualizar tarefa' });
       }
     });
     

@@ -51,9 +51,12 @@ export interface RoomContextType {
   submitVote: (value: CardValue) => void;
   revealCards: () => void;
   hideCards: () => void;
+  /** Remove todos os votos da rodada atual, esconde cards e limpa estimativa final (somente host). */
+  resetRoundVotes: () => void;
   startNewRound: (title: string, subtitle?: string) => void;
   setFinalEstimate: (value: string) => void;
   deleteRound: (roundId: string) => void;
+  updateRound: (roundId: string, title: string, subtitle?: string) => void;
   startVoting: (roundId: string) => void;
   endVoting: () => void;
   error: string | null;

@@ -1,5 +1,5 @@
 // Serviço para fazer requisições HTTP para o backend
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 // Criar uma nova sala
 export async function createRoom(name: string, userName: string, code?: string) {

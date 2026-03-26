@@ -1,8 +1,10 @@
+'use client';
+
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { socketService } from '../services/socketService';
 import { createRoom as apiCreateRoom, joinRoom as apiJoinRoom } from '../services/apiService';
-import type { Room, User, RoomContextType, CardValue } from '../types';
+import type { Room, User, RoomContextType, CardValue, Round } from '../types';
 
 // Criando o contexto
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -25,6 +27,10 @@ const saveToLocalStorage = (user: User | null, room: Room | null) => {
 
 // Função para carregar os dados do localStorage
 const loadFromLocalStorage = () => {
+  if (typeof window === 'undefined') {
+    return { user: null, room: null };
+  }
+
   try {
     const userStr = localStorage.getItem('planningPoko_user');
     const roomStr = localStorage.getItem('planningPoko_room');
@@ -104,17 +110,10 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       
       if (currentRoom && room.id === currentRoom.id) {
         console.log('Sala atualizada:', room);
-        
-        // Preservar o estado activeVoting quando receber atualizações da sala
-        // Isso evita que novos usuários afetem o estado da votação ativa
-        setCurrentRoom(prevRoom => {
-          if (!prevRoom) return room;
-          
-          return {
-            ...room,
-            activeVoting: prevRoom.activeVoting
-          };
-        });
+        // O servidor é a fonte de verdade para activeVoting e currentRound.
+        // Não reutilizar prevRoom.activeVoting aqui: participantes ficariam com false
+        // quando o host inicia a votação (eles só recebem esta atualização).
+        setCurrentRoom(room);
       }
     });
     
@@ -310,6 +309,32 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       roomCode: currentRoom.code
     });
   }, [currentUser, currentRoom]);
+
+  const resetRoundVotes = useCallback(() => {
+    if (!currentUser?.isHost || !currentRoom || !currentRoom.currentRound) return;
+
+    const roundId = currentRoom.currentRound.id;
+    socketService.emit('reset-round-votes', {
+      roomId: currentRoom.id,
+      roundId,
+      roomCode: currentRoom.code,
+    });
+
+    setCurrentRoom((prev) => {
+      if (!prev?.currentRound || prev.currentRound.id !== roundId) return prev;
+      const emptyRound = {
+        ...prev.currentRound,
+        votes: [],
+        revealed: false,
+        finalEstimate: undefined,
+      };
+      return {
+        ...prev,
+        rounds: prev.rounds.map((r) => (r.id === roundId ? { ...r, ...emptyRound } : r)),
+        currentRound: emptyRound,
+      };
+    });
+  }, [currentUser, currentRoom]);
   
   const startNewRound = useCallback((title: string, subtitle?: string) => {
     if (!currentUser?.isHost || !currentRoom) return;
@@ -355,6 +380,36 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       };
     });
   }, [currentUser, currentRoom]);
+
+  const updateRound = useCallback(
+    (roundId: string, title: string, subtitle?: string) => {
+      if (!currentUser?.isHost || !currentRoom) return;
+
+      socketService.emit('update-round', {
+        roomId: currentRoom.id,
+        roundId,
+        title,
+        subtitle: subtitle ?? '',
+        roomCode: currentRoom.code,
+      });
+
+      setCurrentRoom((prevRoom) => {
+        if (!prevRoom) return null;
+        const sub = subtitle ?? '';
+        const patch = (r: Round) =>
+          r.id === roundId ? { ...r, title: title.trim(), subtitle: sub } : r;
+        return {
+          ...prevRoom,
+          rounds: prevRoom.rounds.map(patch),
+          currentRound:
+            prevRoom.currentRound?.id === roundId
+              ? { ...prevRoom.currentRound, title: title.trim(), subtitle: sub }
+              : prevRoom.currentRound,
+        };
+      });
+    },
+    [currentUser, currentRoom]
+  );
   
   // Iniciar uma votação (ativar uma rodada específica)
   const startVoting = useCallback((roundId: string) => {
@@ -397,7 +452,8 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       if (!prevRoom) return null;
       return {
         ...prevRoom,
-        activeVoting: false
+        activeVoting: false,
+        currentRound: null,
       };
     });
   }, [currentUser, currentRoom]);
@@ -412,9 +468,11 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     submitVote,
     revealCards,
     hideCards,
+    resetRoundVotes,
     startNewRound,
     setFinalEstimate,
     deleteRound,
+    updateRound,
     startVoting,
     endVoting,
     error
@@ -429,9 +487,11 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     submitVote,
     revealCards,
     hideCards,
+    resetRoundVotes,
     startNewRound,
     setFinalEstimate,
     deleteRound,
+    updateRound,
     startVoting,
     endVoting
   ]);

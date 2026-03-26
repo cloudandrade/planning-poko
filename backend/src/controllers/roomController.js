@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const roomModel = require('../models/roomModel');
+const roomModel = require('../models/roomModelMongo');
 
 // Criar uma nova sala
 async function createRoom(req, res) {

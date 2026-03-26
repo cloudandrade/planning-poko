@@ -1,13 +1,18 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+'use client';
+
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useRoom } from '../hooks/useRoom';
 
 const RoundHistory: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { currentRoom } = useRoom();
+
+  useEffect(() => {
+    if (!currentRoom) router.push('/');
+  }, [currentRoom, router]);
   
   if (!currentRoom) {
-    navigate('/');
     return null;
   }
   
@@ -16,7 +21,7 @@ const RoundHistory: React.FC = () => {
       <header className="p-3 d-flex align-items-center border-bottom" style={{ borderColor: 'var(--dark-lighter) !important' }}>
         <button 
           className="btn btn-link text-secondary me-3 p-0"
-          onClick={() => navigate('/room')}
+          onClick={() => router.push('/room')}
         >
           ← Voltar
         </button>

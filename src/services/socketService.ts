@@ -9,7 +9,7 @@ class SocketService {
   connect(): void {
     console.log('Conectando ao servidor Socket.IO...');
     
-    this.socket = io('http://localhost:3000');
+    this.socket = io();
     
     // Configurar listeners padrão
     this.setupListeners();

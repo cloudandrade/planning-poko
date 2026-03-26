@@ -1,6 +1,9 @@
 # Planning Poko Backend
 
-Backend para a aplicação de Planning Poko, desenvolvido com Node.js, Express, Socket.io e SQLite.
+> **Recomendado:** use o **monólito** na raiz do repositório (`yarn dev` → `server.cjs`) e um único **`.env` na raiz**.  
+> Este pacote ainda pode rodar em modo standalone; o `src/index.js` carrega primeiro **`../../.env`** (raiz) e depois `../.env`.
+
+Backend para a aplicação de Planning Poko, desenvolvido com Node.js, Express, Socket.io e MongoDB.
 
 ## Estrutura do Projeto
 
@@ -11,10 +14,11 @@ backend/
 │   ├── models/         # Modelos de dados
 │   ├── routes/         # Rotas da API
 │   ├── socket/         # Handlers do Socket.io
-│   ├── database.js     # Configuração do banco de dados
+│   ├── database.js     # (antigo) Configuração do banco de dados SQLite
+│   ├── databaseMongo.js # Configuração do banco de dados MongoDB
 │   └── index.js        # Ponto de entrada da aplicação
 ├── package.json
-└── database.sqlite     # Banco de dados SQLite (criado automaticamente)
+└── (sem arquivo local) # MongoDB persiste no servidor local
 ```
 
 ## Instalação
@@ -44,16 +48,22 @@ npm run start:clear
 
 ## Variáveis de Ambiente
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+Preferência: **`.env` na raiz do repositório** (mesmas chaves do `.env.example` da raiz).  
+Se manter um `.env` apenas em `backend/`, ele será usado só para chaves ainda não definidas.
+
+Exemplo de variáveis (igual à raiz):
 
 ```
 # Configurações do servidor
 PORT=3000
 
-# Configurações do banco de dados
-# Defina como 'true' para resetar o banco de dados ao iniciar o servidor (apaga o arquivo)
+# Configurações do banco de dados (MongoDB local)
+MONGODB_URI=mongodb://127.0.0.1:27017
+MONGODB_DB=planning-poko
+
+# Defina como 'true' para resetar o banco ao iniciar o servidor (dropDatabase)
 RESET_DB=false
-# Defina como 'true' para limpar as tabelas ao invés de excluir o arquivo do banco
+# Defina como 'true' para limpar as coleções (deleteMany) ao invés de resetar tudo
 CLEAR_DB_TABLES=false
 ```
 

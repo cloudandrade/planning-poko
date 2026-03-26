@@ -27,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   
   return (
     <button
+      type="button"
       className={`btn ${variantClasses[variant]} ${widthClass}`}
       onClick={onClick}
       disabled={disabled}
