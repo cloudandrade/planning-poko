@@ -15,7 +15,7 @@ function readRoomCodeFromSearch(): string | null {
 
 const Home: React.FC = () => {
   const router = useRouter();
-  const { createRoom, joinRoom, error, currentRoom } = useRoom();
+  const { createRoom, joinRoom, currentRoom } = useRoom();
   
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
   const [roomName, setRoomName] = useState('');
@@ -39,23 +39,21 @@ const Home: React.FC = () => {
     }
   }, [shouldNavigate, currentRoom, router]);
   
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
     if (!roomName.trim() || !userName.trim()) return;
-    
-    createRoom(roomName, userName);
-    setShouldNavigate(true);
+    const ok = await createRoom(roomName, userName);
+    if (ok) setShouldNavigate(true);
   };
-  
-  const handleJoinRoom = () => {
+
+  const handleJoinRoom = async () => {
     if (!roomId.trim() || !userName.trim()) return;
-    
-    joinRoom(roomId, userName);
-    setShouldNavigate(true);
+    const ok = await joinRoom(roomId, userName);
+    if (ok) setShouldNavigate(true);
   };
   
   return (
-    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--dark)' }}>
-      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
+    <div className="app-page" style={{ backgroundColor: 'var(--dark)' }}>
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-3 p-md-4 overflow-auto min-h-0">
         <div className="w-100" style={{ maxWidth: '500px', backgroundColor: 'var(--dark-light)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', padding: '1.5rem' }}>
           <h1 className="display-5 fw-bold text-center mb-4">Planning Poko</h1>
           
@@ -143,10 +141,6 @@ const Home: React.FC = () => {
                 Entrar na Sala
               </button>
             </div>
-          )}
-          
-          {error && (
-            <p className="mt-4 text-danger text-center">{error}</p>
           )}
         </div>
       </div>

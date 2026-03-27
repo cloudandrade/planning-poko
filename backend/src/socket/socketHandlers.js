@@ -80,7 +80,7 @@ function socketHandlers(io) {
         console.log(`Usuários na sala: ${room.users.map(u => u.name).join(', ')}`);
       } catch (error) {
         console.error('Erro ao entrar na sala:', error);
-        socket.emit('error', { message: 'Erro ao entrar na sala' });
+        socket.emit('server-error', { message: 'Erro ao entrar na sala' });
       }
     });
     
@@ -138,7 +138,7 @@ function socketHandlers(io) {
         }
       } catch (error) {
         console.error('Erro ao sair da sala:', error);
-        socket.emit('error', { message: 'Erro ao sair da sala' });
+        socket.emit('server-error', { message: 'Erro ao sair da sala' });
       }
     });
     
@@ -197,7 +197,7 @@ function socketHandlers(io) {
         }
       } catch (error) {
         console.error('Erro ao submeter voto:', error);
-        socket.emit('error', { message: 'Erro ao submeter voto' });
+        socket.emit('server-error', { message: 'Erro ao submeter voto' });
       }
     });
     
@@ -232,7 +232,7 @@ function socketHandlers(io) {
         console.log(`Cards revelados na sala ${roomId} (${roomCode || 'sem código'})`);
       } catch (error) {
         console.error('Erro ao revelar cards:', error);
-        socket.emit('error', { message: 'Erro ao revelar cards' });
+        socket.emit('server-error', { message: 'Erro ao revelar cards' });
       }
     });
     
@@ -267,7 +267,7 @@ function socketHandlers(io) {
         console.log(`Cards escondidos na sala ${roomId} (${roomCode || 'sem código'})`);
       } catch (error) {
         console.error('Erro ao esconder cards:', error);
-        socket.emit('error', { message: 'Erro ao esconder cards' });
+        socket.emit('server-error', { message: 'Erro ao esconder cards' });
       }
     });
 
@@ -296,7 +296,7 @@ function socketHandlers(io) {
         console.log(`Votos zerados na sala ${roomId}, rodada ${roundId}`);
       } catch (error) {
         console.error('Erro ao zerar votos:', error);
-        socket.emit('error', { message: 'Erro ao reiniciar votação' });
+        socket.emit('server-error', { message: 'Erro ao reiniciar votação' });
       }
     });
     
@@ -337,7 +337,7 @@ function socketHandlers(io) {
         console.log(`Nova rodada iniciada na sala ${roomId} (${roomCode || 'sem código'}): ${title}`);
       } catch (error) {
         console.error('Erro ao iniciar nova rodada:', error);
-        socket.emit('error', { message: 'Erro ao iniciar nova rodada' });
+        socket.emit('server-error', { message: 'Erro ao iniciar nova rodada' });
       }
     });
     
@@ -380,7 +380,7 @@ function socketHandlers(io) {
         console.log(`Estimativa final definida na sala ${roomId} (${roomCode || 'sem código'}): ${value}`);
       } catch (error) {
         console.error('Erro ao definir estimativa final:', error);
-        socket.emit('error', { message: 'Erro ao definir estimativa final' });
+        socket.emit('server-error', { message: 'Erro ao definir estimativa final' });
       }
     });
 
@@ -405,7 +405,7 @@ function socketHandlers(io) {
         console.log(`Rodada ${roundId} atualizada na sala ${roomId}`);
       } catch (error) {
         console.error('Erro ao atualizar rodada:', error);
-        socket.emit('error', { message: 'Erro ao atualizar tarefa' });
+        socket.emit('server-error', { message: 'Erro ao atualizar tarefa' });
       }
     });
     
@@ -446,7 +446,7 @@ function socketHandlers(io) {
         console.log(`Rodada ${roundId} excluída da sala ${roomId} (${roomCode || 'sem código'})`);
       } catch (error) {
         console.error('Erro ao excluir rodada:', error);
-        socket.emit('error', { message: 'Erro ao excluir rodada' });
+        socket.emit('server-error', { message: 'Erro ao excluir rodada' });
       }
     });
     
@@ -487,7 +487,7 @@ function socketHandlers(io) {
         console.log(`Votação iniciada na sala ${roomId} (${roomCode || 'sem código'}) para a rodada ${roundId}`);
       } catch (error) {
         console.error('Erro ao iniciar votação:', error);
-        socket.emit('error', { message: 'Erro ao iniciar votação' });
+        socket.emit('server-error', { message: 'Erro ao iniciar votação' });
       }
     });
     
@@ -526,7 +526,7 @@ function socketHandlers(io) {
         console.log(`Votação encerrada na sala ${roomId} (${roomCode || 'sem código'})`);
       } catch (error) {
         console.error('Erro ao encerrar votação:', error);
-        socket.emit('error', { message: 'Erro ao encerrar votação' });
+        socket.emit('server-error', { message: 'Erro ao encerrar votação' });
       }
     });
     

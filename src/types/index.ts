@@ -45,8 +45,8 @@ export interface RoomContextType {
   currentUser: User | null;
   currentRoom: Room | null;
   isConnected: boolean;
-  createRoom: (roomName: string, userName: string) => void;
-  joinRoom: (roomId: string, userName: string) => void;
+  createRoom: (roomName: string, userName: string) => Promise<boolean>;
+  joinRoom: (roomId: string, userName: string) => Promise<boolean>;
   leaveRoom: () => void;
   submitVote: (value: CardValue) => void;
   revealCards: () => void;
@@ -59,5 +59,4 @@ export interface RoomContextType {
   updateRound: (roundId: string, title: string, subtitle?: string) => void;
   startVoting: (roundId: string) => void;
   endVoting: () => void;
-  error: string | null;
 }

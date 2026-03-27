@@ -8,6 +8,7 @@ import CreateVotingModal from '../components/CreateVotingModal';
 import EditVotingModal from '../components/EditVotingModal';
 import VotingList from '../components/VotingList';
 import { useRoom } from '../hooks/useRoom';
+import { useDialog } from '../context/DialogContext';
 import { CARD_VALUES } from '../types';
 import type { CardValue, Round } from '../types';
 
@@ -28,6 +29,8 @@ const Room: React.FC = () => {
     startVoting,
     endVoting
   } = useRoom();
+
+  const { confirm, showCopyLink } = useDialog();
   
   const [selectedCard, setSelectedCard] = useState<CardValue | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -138,18 +141,28 @@ const Room: React.FC = () => {
     endVoting();
   };
 
-  const handleResetVotes = () => {
-    if (
-      !window.confirm(
-        'Reiniciar esta votação? Todos os votos serão apagados, os cards voltam a ficar ocultos e a estimativa final (se houver) será removida.'
-      )
-    ) {
-      return;
-    }
+  const handleResetVotes = async () => {
+    const ok = await confirm({
+      title: 'Reiniciar votação',
+      message:
+        'Reiniciar esta votação? Todos os votos serão apagados, os cards voltam a ficar ocultos e a estimativa final (se houver) será removida.',
+      confirmLabel: 'Reiniciar',
+      cancelLabel: 'Cancelar',
+      variant: 'danger',
+    });
+    if (!ok) return;
     resetRoundVotes();
   };
   
-  const handleDeleteRound = (roundId: string) => {
+  const handleDeleteRound = async (roundId: string) => {
+    const ok = await confirm({
+      title: 'Excluir votação',
+      message: 'Excluir esta votação permanentemente?',
+      confirmLabel: 'Excluir',
+      cancelLabel: 'Cancelar',
+      variant: 'danger',
+    });
+    if (!ok) return;
     deleteRound(roundId);
   };
 
@@ -182,7 +195,12 @@ const Room: React.FC = () => {
         inviteCopiedTimerRef.current = null;
       }, 2500);
     } catch {
-      window.prompt('Copie o link:', url);
+      await showCopyLink({
+        title: 'Copiar link de convite',
+        message:
+          'Não foi possível copiar automaticamente. Você pode copiar o link abaixo manualmente.',
+        url,
+      });
     }
   };
   
@@ -201,8 +219,8 @@ const Room: React.FC = () => {
   };
   
   return (
-    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--dark)' }}>
-      <header className="p-3 d-flex align-items-center justify-content-between border-bottom" style={{ borderColor: 'var(--dark-lighter) !important' }}>
+    <div className="app-page" style={{ backgroundColor: 'var(--dark)' }}>
+      <header className="p-3 d-flex align-items-center justify-content-between border-bottom flex-shrink-0" style={{ borderColor: 'var(--dark-lighter) !important' }}>
         <div className="d-flex align-items-center">
           <button 
             className="btn btn-link text-secondary me-3 p-0"
@@ -255,9 +273,15 @@ const Room: React.FC = () => {
                 Reiniciar votação
               </Button>
             )}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleEndVoting}
+              disabled={!currentRound.finalEstimate}
+              title={
+                !currentRound.finalEstimate
+                  ? 'Defina a estimativa final antes de encerrar a votação.'
+                  : undefined
+              }
             >
               Encerrar Votação
             </Button>
@@ -273,7 +297,7 @@ const Room: React.FC = () => {
         )}
       </header>
       
-      <main className="flex-grow-1 d-flex flex-column p-4">
+      <main className="flex-grow-1 d-flex flex-column p-4 overflow-y-auto min-h-0">
         {/* Tela de listagem de votações quando não há votação ativa */}
         {!activeVoting && (
           <div>
@@ -446,7 +470,7 @@ const Room: React.FC = () => {
         )}
       </main>
       
-      <footer className="p-3 border-top" style={{ borderColor: 'var(--dark-lighter) !important' }}>
+      <footer className="p-3 border-top flex-shrink-0" style={{ borderColor: 'var(--dark-lighter) !important' }}>
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex flex-column">
             <span className="text-secondary small mb-1">

@@ -76,9 +76,9 @@ class SocketService {
       this.notifyListeners('voting-ended', data);
     });
     
-    this.socket.on('error', (data) => {
-      this.notifyListeners('error', data);
-      console.error('Erro do servidor:', data);
+    // Não usar o nome "error" — é evento reservado no Socket.IO e corrompe o payload.
+    this.socket.on('server-error', (data) => {
+      this.notifyListeners('server-error', data);
     });
   }
 

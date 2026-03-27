@@ -7,6 +7,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   fullWidth?: boolean;
   disabled?: boolean;
+  title?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -14,7 +15,8 @@ const Button: React.FC<ButtonProps> = ({
   onClick, 
   variant = 'primary', 
   fullWidth = false,
-  disabled = false
+  disabled = false,
+  title,
 }) => {
   // Mapeamento de variantes para classes do Bootstrap
   const variantClasses = {
@@ -31,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
       className={`btn ${variantClasses[variant]} ${widthClass}`}
       onClick={onClick}
       disabled={disabled}
+      title={title}
       style={variant === 'primary' ? { backgroundColor: 'var(--primary)' } : {}}
     >
       {children}

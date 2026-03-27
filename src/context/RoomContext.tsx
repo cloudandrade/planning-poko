@@ -4,6 +4,11 @@ import React, { createContext, useState, useEffect, useCallback, useRef } from '
 import type { ReactNode } from 'react';
 import { socketService } from '../services/socketService';
 import { createRoom as apiCreateRoom, joinRoom as apiJoinRoom } from '../services/apiService';
+import {
+  errorMessageFromUnknown,
+  socketErrorMessage,
+  toastError,
+} from '../lib/toast';
 import type { Room, User, RoomContextType, CardValue, Round } from '../types';
 
 // Criando o contexto
@@ -41,9 +46,10 @@ const loadFromLocalStorage = () => {
         room: JSON.parse(roomStr) as Room
       };
     }
-  } catch (error) {
-    console.error('Erro ao carregar dados do localStorage:', error);
-    // Limpar localStorage em caso de erro
+  } catch {
+    queueMicrotask(() => {
+      toastError('Não foi possível restaurar a sessão salva.');
+    });
     localStorage.removeItem('planningPoko_user');
     localStorage.removeItem('planningPoko_room');
   }
@@ -61,7 +67,6 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     activeVoting: cachedRoom.activeVoting || false
   } : null);
   const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
   // Usar refs para acessar o estado mais recente nos listeners de eventos
   const currentRoomRef = useRef(currentRoom);
@@ -163,6 +168,10 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
         });
       }
     });
+
+    socketService.on('server-error', (data: unknown) => {
+      toastError(socketErrorMessage(data));
+    });
     
     return () => {
       // Limpeza ao desmontar
@@ -170,90 +179,55 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     };
   }, []); // Executar apenas uma vez na montagem do componente
 
-  // Função para gerar um código de sala de 4 letras maiúsculas
-  const generateRoomCode = (): string => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let code = '';
-    for (let i = 0; i < 4; i++) {
-      code += letters.charAt(Math.floor(Math.random() * letters.length));
-    }
-    return code;
-  };
-
   // Funções para interagir com a sala
-  const createRoom = useCallback(async (roomName: string, userName: string) => {
+  const createRoom = useCallback(async (roomName: string, userName: string): Promise<boolean> => {
     try {
-      // Gerar um código para a sala
-      const roomCode = generateRoomCode();
-      
-      // Verificar se já existe uma sala com esse código
-      try {
-        // Tentar buscar a sala pelo código
-        const existingRoom = await apiJoinRoom(roomCode, userName);
-        
-        // Se não lançar erro, significa que a sala existe
-        // Atualizar o estado
-        setCurrentUser(existingRoom.user);
-        setCurrentRoom(existingRoom.room);
-        
-        // Conectar ao socket para receber atualizações em tempo real
-        socketService.emit('join-room', { 
-          roomId: existingRoom.room.id, 
-          userId: existingRoom.user.id,
-          roomCode: existingRoom.room.code
-        });
-      } catch {  // Ignorar o erro, significa que a sala não existe
-        // Se lançar erro, significa que a sala não existe
-        // Criar uma nova sala
-        const room = await apiCreateRoom(roomName, userName);
-        
-        // Encontrar o usuário atual (o host)
-        const currentUser = room.users.find((user: User) => user.isHost);
-        
-        if (!currentUser) {
-          setError('Erro ao criar sala: usuário host não encontrado');
-          return;
-        }
-        
-        // Atualizar o estado
-        setCurrentUser(currentUser);
-        setCurrentRoom(room);
-        
-        // Conectar ao socket para receber atualizações em tempo real
-        socketService.emit('join-room', { 
-          roomId: room.id, 
-          userId: currentUser.id,
-          roomCode: room.code
-        });
+      const room = await apiCreateRoom(roomName, userName);
+      const hostUser = room.users.find((user: User) => user.isHost);
+
+      if (!hostUser) {
+        toastError('Erro ao criar sala: usuário host não encontrado.');
+        return false;
       }
-      
-      setError(null);
+
+      setCurrentUser(hostUser);
+      setCurrentRoom(room);
+
+      socketService.emit('join-room', {
+        roomId: room.id,
+        userId: hostUser.id,
+        roomCode: room.code,
+      });
+      return true;
     } catch (err) {
-      console.error('Erro ao criar sala:', err);
-      setError('Erro ao criar sala. Tente novamente.');
+      toastError(
+        errorMessageFromUnknown(err, 'Erro ao criar sala. Tente novamente.')
+      );
+      return false;
     }
   }, []);
-  
-  const joinRoom = useCallback(async (roomCode: string, userName: string) => {
+
+  const joinRoom = useCallback(async (roomCode: string, userName: string): Promise<boolean> => {
     try {
-      // Chamar a API para entrar em uma sala
       const response = await apiJoinRoom(roomCode, userName);
-      
-      // Atualizar o estado
+
       setCurrentUser(response.user);
       setCurrentRoom(response.room);
-      
-      // Conectar ao socket para receber atualizações em tempo real
-      socketService.emit('join-room', { 
-        roomId: response.room.id, 
+
+      socketService.emit('join-room', {
+        roomId: response.room.id,
         userId: response.user.id,
-        roomCode: response.room.code
+        roomCode: response.room.code,
       });
-      
-      setError(null);
+      return true;
     } catch (err) {
-      console.error('Erro ao entrar na sala:', err);
-      setError('Sala não encontrada ou erro ao entrar. Verifique o código e tente novamente.');
+      toastError(
+        errorMessageFromUnknown(
+          err,
+          'Sala não encontrada ou erro ao entrar. Verifique o código e tente novamente.'
+        )
+      );
+      return false;
     }
   }, []);
   
@@ -474,13 +448,11 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
     deleteRound,
     updateRound,
     startVoting,
-    endVoting,
-    error
+    endVoting
   }), [
     currentUser, 
     currentRoom, 
-    isConnected, 
-    error,
+    isConnected,
     createRoom,
     joinRoom,
     leaveRoom,

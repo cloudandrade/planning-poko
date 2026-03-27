@@ -17,8 +17,8 @@ const RoundHistory: React.FC = () => {
   }
   
   return (
-    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--dark)' }}>
-      <header className="p-3 d-flex align-items-center border-bottom" style={{ borderColor: 'var(--dark-lighter) !important' }}>
+    <div className="app-page" style={{ backgroundColor: 'var(--dark)' }}>
+      <header className="p-3 d-flex align-items-center border-bottom flex-shrink-0" style={{ borderColor: 'var(--dark-lighter) !important' }}>
         <button 
           className="btn btn-link text-secondary me-3 p-0"
           onClick={() => router.push('/room')}
@@ -28,7 +28,7 @@ const RoundHistory: React.FC = () => {
         <h1 className="fs-4 fw-bold mb-0">Histórico de Rodadas</h1>
       </header>
       
-      <main className="flex-grow-1 p-4">
+      <main className="flex-grow-1 p-4 overflow-y-auto min-h-0">
         <div className="container-fluid" style={{ maxWidth: '900px' }}>
           <div className="mb-4">
             <label htmlFor="search-input" className="visually-hidden">Buscar por história</label>

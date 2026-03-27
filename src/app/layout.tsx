@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.css';
 
+import { SiteFooter } from '../components/SiteFooter';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -19,7 +20,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="app-shell">
+            <div className="app-main">{children}</div>
+            <SiteFooter />
+          </div>
+        </Providers>
       </body>
     </html>
   );
