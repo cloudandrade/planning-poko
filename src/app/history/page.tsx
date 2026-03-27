@@ -1,4 +1,4 @@
-import RoundHistory from '../../pages/RoundHistory';
+import RoundHistory from '../../views/RoundHistory';
 
 export default function Page() {
   return <RoundHistory />;

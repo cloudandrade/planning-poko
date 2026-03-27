@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { RoomProvider } from './context/RoomContext';
-import Home from './pages/Home';
-import Room from './pages/Room';
-import RoundHistory from './pages/RoundHistory';
+import Home from './views/Home';
+import Room from './views/Room';
+import RoundHistory from './views/RoundHistory';
 
 function App() {
   return (
